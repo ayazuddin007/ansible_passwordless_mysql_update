@@ -1,0 +1,160 @@
+ansible
+----------
+master - 
+node -  172.31.34.238
+
+
+step1- Install Ansible in Master
+
+Note: When a new node is created . when you check each user (root or ec2-user ) each has .ssh/authorized_key.
+	ll .ssh/
+	cat .ssh/authorized_keys
+
+step2- create private key and ssh to node with ec2-user (As Root user from master)
+	cat mynewkp.pem
+	chmod 400 mynewkp.pem
+	ssh -i mynewkp.pem ec2-user@<node-private ip>
+Step3-To execute command on Node from Master though SSH (As Root user from master)
+	ssh -i mynewkp.pem ec2-user@<node-private ip> 'sudo touch aa bb'
+	ssh -i mynewkp.pem ec2-user@<node-private ip> 'sudo rm -rf aa bb
+
+Step4- Now Try to ssh from master ec2-user
+         exit from root user and become ec2-user
+         now try ssh to node	
+         copy pem key from root to ec2-user
+	sudo cp  /root/mynewkp.pem .	
+	ssh -i mynewkp.pem ec2-user@<node-private ip>
+         (Permission denied error)
+
+step5: 
+
+	scp  -i mynewkp.pem /home/ec2-user/.ssh/id_rsa.pub ec2-user@<node-private ip>:/home/ec2-user/
+	ssh -i mynewkp.pem ec2-user@<node-private ip> "cat  id_rsa.pub >> .ssh/authorized_keys"
+	ansible -i hosts web -m ping
+
+	ssh-keygen -f /home/ec2-user/.ssh/id_rsa -t rsa -N ''
+
+	if [ -f "$FILE2" ]; then
+    echo "ssh key already exist on remote host"
+else
+        cat  id_rsa.pub >> .ssh/authorized_keys
+        echo "ssh key copied to remote server"
+fi'
+
+
+
+ip=$1
+FILE=/home/ec2-user/id_rsa.pubb
+if ssh -i /home/ec2-user/mynewkp.pem ec2-user@$ip "[ -f $FILE ]"
+then
+        #scp  -i mynewkp.pem /home/ec2-user/.ssh/id_rsa.pub ec2-user@$ip:/home/ec2-user/
+          #  ssh -i mynewkp.pem ec2-user@$ip "cat  id_rsa.pub >> .ssh/authorized_keys && rm -rf id_rsa.pub"
+           # echo "$ip" >> /home/ec2-user/hosts
+            #ansible -i /home/ec2-user/hosts $ip -m ping
+            echo "Action"
+else
+        echo "No Action"
+fi
+
+
+-----------------------
+my final script
+
+#!/bin/bash
+
+
+ip=$1
+FILE=/home/ec2-user/id_rsa.pub
+if ssh -i /home/ec2-user/mynewkp.pem ec2-user@$ip "[ -f $FILE ]"
+then
+        scp  -i mynewkp.pem /home/ec2-user/.ssh/id_rsa.pub ec2-user@$ip:/home/ec2-user/
+        ssh -i mynewkp.pem ec2-user@$ip "cat  id_rsa.pub >> .ssh/authorized_keys && rm -rf id_rsa.pub"
+        echo "Connected to Host $ip"
+           # echo "Action"
+else
+        scp  -i mynewkp.pem /home/ec2-user/.ssh/id_rsa.pub ec2-user@$ip:/home/ec2-user/
+        ssh -i mynewkp.pem ec2-user@$ip 'echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwGYWed1w3CX4JNZA/jSScXBVXtKJ1brfqEH2HOKSDeIo7pbGOmcjMdKOcB4+EKsNq8KRMhtNZBxiYQ3sA3FlgHR15d0zJotbEsYSECUScVqn6EjHsm8l7ueO1/Bpx/N2N4d/oUYtuU7z+zd6NwdvNXVhsMn1w1kPZYdBAzEAvHojRHk2WsxXgBSKBnehnwJa6p8SjHifo6yCBY0V7+0xqghiR6/o1reJI52w4A0QLkb3URFZ2WO2IhFrN6h713mG1eAd4fderdDU7PAHxiAhqS1zTR2Rg79Ys+soVkX2KltC2bTuFSn8q6K/GtxegoOGA+vP2Lw/prytE0GEPPKVj mynewkp" > .ssh/authorized_keys'
+        ssh -i mynewkp.pem ec2-user@$ip "rm -rf /home/ec2-user/.ansible"
+        echo "Not Connected to Host $ip"
+fi
+
+----------------
+hosts
+------
+[web]
+172.31.34.238
+172.31.33.108
+ansible -i hosts web -m ping
+
+sudo ./b.sh 172.31.34.238
+sudo ./b.sh 172.31.33.108
+
+change permission to ec2-user
+sudo chown ec2-user:ec2-user b.sh
+./b.sh 172.31.34.238
+./b.sh 172.31.33.108
+
+ansible-playbook -i hosts  mysql_playbook.yml
+
+mysql -u ayaz -p
+password: ayaz123
+
+
+sudo scp  -i mynewkp.pem /home/ec2-user/query.sql ec2-user@172.31.34.238:/home/ec2-user/
+
+sudo ssh -i mynewkp.pem ec2-user@172.31.34.238 "mysql -u ayaz -payaz123 amitDB < /home/ec2-user/query.sql"
+
+cat query.sql
+
+-- install mysql -- query msql -- remove mysql
+
+ansible-playbook -i hosts  mysql_install_playbook.yml
+ansible-playbook -i hosts  query_playbook.yml
+ ansible-playbook -i hosts  mysql_remove_playbook.yml
+
+d.txt
+----------
+172.31.34.238
+172.31.33.108
+(No need to use we cam directly use hosts file and read it from 2nd line as below)
+cat /home/ec2-user/hosts | sed 1d
+
+
+for host in `cat d.txt`
+do
+     echo $host
+done
+
+
+d.sh
+-----------
+#!/bin/bash
+for ip in `cat /home/ec2-user/hosts | sed 1d`  # start reading from 2nd line in hosts file
+do
+
+FILE=/home/ec2-user/id_rsa.pub
+if ssh -i /home/ec2-user/mynewkp.pem ec2-user@$ip "[ -f $FILE ]"
+then
+        scp  -i mynewkp.pem /home/ec2-user/.ssh/id_rsa.pub ec2-user@$ip:/home/ec2-user/
+        ssh -i mynewkp.pem ec2-user@$ip "cat  id_rsa.pub >> .ssh/authorized_keys && rm -rf id_rsa.pub"
+        echo "Connected to Host $ip"
+           # echo "Action"
+else
+        scp  -i mynewkp.pem /home/ec2-user/.ssh/id_rsa.pub ec2-user@$ip:/home/ec2-user/
+        ssh -i mynewkp.pem ec2-user@$ip 'echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwGYWed1w3CX4JNZA/jSScXBVXtKJ1brfqEH2HOKSDeIo7pbGOmcjMdKOcB4+EKsNq8KRMhtNZBxiYQ3sA3FlgHR15d0zJotbEsYSECUScVqn6EjHsm8l7ueO1/Bpx/N2N4d/oUYtuU7z+zd6NwdvNXVhsMn1w1kPZYdBAzEAvHojRHk2WsxXgBSKBnehnwJa6p8SjHifo6yCBY0V7+0xqghiR6/o1reJI52w4A0QLkb3URFZ2WO2IhFrN6h713mG1eAd4fderdDU7PAHxiAhqS1zTR2Rg79Ys+soVkX2KltC2bTuFSn8q6K/GtxegoOGA+vP2Lw/prytE0GEPPKVj mynewkp" > .ssh/authorized_keys'
+        ssh -i mynewkp.pem ec2-user@$ip "rm -rf /home/ec2-user/.ansible"
+        echo "Not Connected to Host $ip"
+fi
+
+
+done
+
+
+
+
+
+
+
+
+
+	
