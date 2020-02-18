@@ -1,0 +1,9 @@
+--- # remove_playbook.yml
+  - name: Remove  Mysql using Ansible from ubuntu
+    hosts: web
+    become: yes
+    connection: ssh
+
+    tasks:
+      - name: Remove  MySQL Server packages
+        apt: name=mysql  state=absent
