@@ -1,0 +1,18 @@
+--- # query_playbook.yml
+  - name: Run  Mysql Query on Ubuntu
+    hosts: web
+    become: yes
+    connection: ssh
+
+    tasks:
+      - name: Copy sql file
+        copy: src=/home/ec2-user/query.sql  dest=/home/ubuntu/
+
+      - name: Create MySQL Server  new database with name 'amitDB'
+        mysql_db:
+           name: amitDB
+           state: present
+        ignore_errors: yes
+
+      - name: Update mysql database
+        shell: mysql -u ayaz -payaz123 amitDB < /home/ubuntu/query.sql
