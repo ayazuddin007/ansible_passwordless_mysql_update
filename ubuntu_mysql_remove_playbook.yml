@@ -6,4 +6,4 @@
 
     tasks:
       - name: Remove  MySQL Server packages
-        apt: name=mysql  state=absent
+        shell: sudo apt remove -y mysql-* && sudo sudo apt autoremove -y
