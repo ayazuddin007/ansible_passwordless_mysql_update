@@ -11,4 +11,4 @@ ansible-playbook -i hosts  query_playbook.yml -u ubuntu
  ansible-playbook -i hosts  mysql_remove_playbook.yml -u ubuntu
 
 
-To Run ansible playbook: remove username in playbook
+To Run ansible playbook: remove name in playbook
