@@ -150,20 +150,6 @@ fi
 done
 
 
-For ssh to Ubuntu Node
-----------------------------
-
-ssh -i "mynewkp.pem" ubuntu@ec2-13-232-36-48.ap-south-1.compute.amazonaws.com
-172.31.33.52 
-ansible -i hosts web -m ping
-ansible -i hosts web -m ping -u ubuntu
-
-ansible-playbook -i hosts  mysql_install_playbook.yml -u ubuntu
-ansible-playbook -i hosts  query_playbook.yml -u ubuntu
- ansible-playbook -i hosts  mysql_remove_playbook.yml -u ubuntu
-
-
-To Run ansible playbook: remove user in playbook
 
 
 
