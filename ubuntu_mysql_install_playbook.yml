@@ -1,0 +1,52 @@
+--- # mysql_playbook.yml
+  - name: Install Mysql using Ansible on Ubuntu
+    hosts: web
+    become: yes
+    connection: ssh
+
+    tasks:
+      - name: Update
+        command: apt update -y
+
+      - name: install MySQL Server packages
+        command: apt install mysql-server -y
+
+      - name: Start MySQL Server and enable it
+        service:
+           name: mysql
+           state: started
+           enabled: yes
+
+      - name: Install Python
+        apt: name=python state=latest
+
+      - name: Install
+        command: apt install python-mysqldb -y
+
+      - name: Remove Test database if it exist.
+        mysql_db:
+           name: test
+           state: absent
+
+      - name: Remove All Anonymous User Accounts
+        mysql_user:
+           name: ''
+           host_all: yes
+           state: absent
+
+      - name: Create MySQL Server database user with  all database privileges
+        mysql_user:
+           name: ayaz
+           password: ayaz123
+           priv: '*.*:ALL'
+           state: present
+
+      - name: Create MySQL Server  new database with name 'ayazdb'
+        mysql_db:
+           name: ayazdb
+           state: present
+
+      - name: Restart MySQL Server
+        service:
+           name: mysql
+           state: restarted
