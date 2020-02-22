@@ -1,0 +1,9 @@
+Instance : Amazon linux (both Server and Nodes in same Availablility Zone)
+
+sudo su -
+yum update -y
+wget https://archive.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install epel-release-latest-7.noarch.rpm -y
+yum update -y
+yum install git python python-devel python-pip openssl ansible -y
+ansible --version
